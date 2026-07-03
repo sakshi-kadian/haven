@@ -22,7 +22,7 @@ checkpoints/
 *.pth
 
 # Raw datasets -- too large for GitHub (results/ CSVs are still committed)
-data/
+/data/
 
 # Environment
 .env
