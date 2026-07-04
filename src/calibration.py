@@ -30,7 +30,7 @@ def compute_ece(confidences: list, labels: list, n_bins: int = 10) -> float:
     Returns:
         ECE as a float.
     """
-    raise NotImplementedError("Implement on Day 8.")
+    raise NotImplementedError("TODO: Implement this method.")
 
 
 def temperature_scale(logits: list, labels: list) -> float:
@@ -45,7 +45,7 @@ def temperature_scale(logits: list, labels: list) -> float:
     Returns:
         Optimal temperature T (float).
     """
-    raise NotImplementedError("Implement on Day 8.")
+    raise NotImplementedError("TODO: Implement this method.")
 
 
 def plot_reliability_diagram(confidences: list, labels: list,
@@ -59,4 +59,4 @@ def plot_reliability_diagram(confidences: list, labels: list,
         principle:    Name of the principle (used in plot title).
         output_path:  Path to save the figure PNG.
     """
-    raise NotImplementedError("Implement on Day 8.")
+    raise NotImplementedError("TODO: Implement this method.")

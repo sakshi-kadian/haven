@@ -22,7 +22,7 @@ def run_ablation(predictions_path: str, output_path: str) -> None:
         predictions_path: Path to results/predictions.csv
         output_path:      Path to save ablation_results.json
     """
-    raise NotImplementedError("Implement on Day 10.")
+    raise NotImplementedError("TODO: Implement this method.")
 
 
 def categorize_errors(predictions_path: str, output_path: str) -> None:
@@ -37,7 +37,7 @@ def categorize_errors(predictions_path: str, output_path: str) -> None:
         predictions_path: Path to results/predictions.csv
         output_path:      Path to save error_analysis.md
     """
-    raise NotImplementedError("Implement on Day 10.")
+    raise NotImplementedError("TODO: Implement this method.")
 
 
 def extract_case_studies(predictions_path: str, n: int = 10) -> list:
@@ -53,4 +53,4 @@ def extract_case_studies(predictions_path: str, n: int = 10) -> list:
         List of dicts: [{'principle', 'prompt', 'response', 'true_label',
                           'pred_label', 'confidence'}, ...]
     """
-    raise NotImplementedError("Implement on Day 10.")
+    raise NotImplementedError("TODO: Implement this method.")

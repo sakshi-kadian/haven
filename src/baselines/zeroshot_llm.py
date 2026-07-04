@@ -32,7 +32,17 @@ class ZeroShotLLMBaseline:
     """
 
     def __init__(self, model_name: str = "microsoft/Phi-3-mini-4k-instruct"):
-        raise NotImplementedError("Implement on Day 4.")
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        # Load in 4-bit for memory efficiency on Kaggle T4
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_name, 
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+            trust_remote_code=True
+        )
 
     def evaluate(self, df, principle: str) -> list:
         """
@@ -45,4 +55,42 @@ class ZeroShotLLMBaseline:
         Returns:
             List of binary predictions {0, 1}.
         """
-        raise NotImplementedError("Implement on Day 4.")
+        from src.constitution import PRINCIPLES, PROMPT_TEMPLATE
+        import torch
+        from tqdm import tqdm
+        
+        principle_data = PRINCIPLES[principle]
+        predictions = []
+        
+        for _, row in tqdm(df.iterrows(), total=len(df), desc=f"Zero-shot {principle}"):
+            full_prompt = PROMPT_TEMPLATE.format(
+                principle_name=principle_data["name"],
+                principle_description=principle_data["description"],
+                prompt=row["prompt"],
+                response=row["response"]
+            )
+            
+            # Format as chat prompt for Phi-3 instruct
+            messages = [{"role": "user", "content": full_prompt}]
+            input_text = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            
+            inputs = self.tokenizer(input_text, return_tensors="pt").to(self.model.device)
+            
+            with torch.no_grad():
+                outputs = self.model.generate(
+                    **inputs, 
+                    max_new_tokens=2, 
+                    temperature=0.0, # Greedy decoding
+                    do_sample=False
+                )
+                
+            # Extract just the generated output
+            generated_text = self.tokenizer.decode(outputs[0][inputs.input_ids.shape[1]:], skip_special_tokens=True).strip()
+            
+            # Parse output (expecting "1" or "0")
+            if "1" in generated_text:
+                predictions.append(1)
+            else:
+                predictions.append(0)
+                
+        return predictions

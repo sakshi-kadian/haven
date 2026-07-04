@@ -26,7 +26,7 @@ class HavenEvaluator:
 
     def __init__(self, checkpoint_dir: str, resolver_strategy: str = "gating",
                  temperature: dict = None):
-        raise NotImplementedError("Implement on Day 9.")
+        raise NotImplementedError("TODO: Implement this method.")
 
     def score(self, prompt: str, response: str) -> dict:
         """
@@ -35,7 +35,7 @@ class HavenEvaluator:
         Returns:
             Dict mapping principle -> float score in [0, 1].
         """
-        raise NotImplementedError("Implement on Day 9.")
+        raise NotImplementedError("TODO: Implement this method.")
 
     def evaluate(self, prompt: str, response: str) -> dict:
         """
@@ -44,4 +44,4 @@ class HavenEvaluator:
         Returns:
             Dict with keys: scores, conflicts, resolved_label, calibrated_scores.
         """
-        raise NotImplementedError("Implement on Day 9.")
+        raise NotImplementedError("TODO: Implement this method.")

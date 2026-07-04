@@ -23,12 +23,12 @@ import argparse
 
 def get_qlora_config():
     """Return the LoRA configuration for PEFT."""
-    raise NotImplementedError("Implement on Day 5.")
+    raise NotImplementedError("TODO: Implement this method.")
 
 
 def get_quantization_config():
     """Return BitsAndBytes 4-bit quantization config."""
-    raise NotImplementedError("Implement on Day 5.")
+    raise NotImplementedError("TODO: Implement this method.")
 
 
 def train(principle: str, output_dir: str) -> None:
@@ -39,7 +39,7 @@ def train(principle: str, output_dir: str) -> None:
         principle:  One of the 5 constitutional principles.
         output_dir: Directory to save the adapter weights.
     """
-    raise NotImplementedError("Implement on Day 5.")
+    raise NotImplementedError("TODO: Implement this method.")
 
 
 if __name__ == "__main__":

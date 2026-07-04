@@ -24,7 +24,7 @@ class VotingResolver:
     """
 
     def __init__(self, weights: dict = None):
-        raise NotImplementedError("Implement on Day 7.")
+        raise NotImplementedError("TODO: Implement this method.")
 
     def fit(self, score_vectors: list, labels: list) -> None:
         """
@@ -34,7 +34,7 @@ class VotingResolver:
             score_vectors: List of score dicts from conflict-flagged examples.
             labels:        True binary labels for those examples.
         """
-        raise NotImplementedError("Implement on Day 7.")
+        raise NotImplementedError("TODO: Implement this method.")
 
     def resolve(self, score_vector: dict) -> int:
         """
@@ -44,4 +44,4 @@ class VotingResolver:
         Returns:
             Final binary safety label: 0 (unsafe) or 1 (safe).
         """
-        raise NotImplementedError("Implement on Day 7.")
+        raise NotImplementedError("TODO: Implement this method.")

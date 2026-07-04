@@ -33,7 +33,7 @@ class GatingResolver:
     """
 
     def __init__(self, input_dim: int = 3072, checkpoint_path: str = None):
-        raise NotImplementedError("Implement on Day 7.")
+        raise NotImplementedError("TODO: Implement this method.")
 
     def fit(self, prompt_embeddings: list, score_vectors: list, labels: list) -> None:
         """
@@ -44,7 +44,7 @@ class GatingResolver:
             score_vectors:     List of principle score dicts.
             labels:            True binary labels.
         """
-        raise NotImplementedError("Implement on Day 7.")
+        raise NotImplementedError("TODO: Implement this method.")
 
     def resolve(self, prompt_embedding, score_vector: dict, conflicts: list) -> int:
         """
@@ -56,4 +56,4 @@ class GatingResolver:
         Returns:
             Final binary safety label: 0 (unsafe) or 1 (safe).
         """
-        raise NotImplementedError("Implement on Day 7.")
+        raise NotImplementedError("TODO: Implement this method.")

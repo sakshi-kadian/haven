@@ -34,7 +34,7 @@ class ConflictDetector:
     """
 
     def __init__(self, candidate_pairs=None):
-        raise NotImplementedError("Implement on Day 6.")
+        raise NotImplementedError("TODO: Implement this method.")
 
     def compute_correlation_matrix(self, scores_df) -> None:
         """
@@ -44,7 +44,7 @@ class ConflictDetector:
         Args:
             scores_df: DataFrame with columns = principle names, rows = samples.
         """
-        raise NotImplementedError("Implement on Day 6.")
+        raise NotImplementedError("TODO: Implement this method.")
 
     def detect(self, score_vector: dict) -> list:
         """
@@ -58,4 +58,4 @@ class ConflictDetector:
         Returns:
             List of conflicting (pi, pj) tuples. Empty list if no conflict.
         """
-        raise NotImplementedError("Implement on Day 6.")
+        raise NotImplementedError("TODO: Implement this method.")

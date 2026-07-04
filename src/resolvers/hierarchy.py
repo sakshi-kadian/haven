@@ -33,4 +33,4 @@ class HierarchyResolver:
         Returns:
             Final binary safety label: 0 (unsafe) or 1 (safe).
         """
-        raise NotImplementedError("Implement on Day 7.")
+        raise NotImplementedError("TODO: Implement this method.")

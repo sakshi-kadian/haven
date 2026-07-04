@@ -28,7 +28,7 @@ def compute_metrics(y_true: list, y_pred: list, principle: str) -> dict:
     Returns:
         Dict with keys: principle, accuracy, precision, recall, f1.
     """
-    raise NotImplementedError("Implement on Day 9.")
+    raise NotImplementedError("TODO: Implement this method.")
 
 
 def mcnemar_test(y_true: list, y_pred_a: list, y_pred_b: list) -> dict:
@@ -46,7 +46,7 @@ def mcnemar_test(y_true: list, y_pred_a: list, y_pred_b: list) -> dict:
     Returns:
         Dict with keys: statistic, p_value, significant (bool, threshold p<0.05).
     """
-    raise NotImplementedError("Implement on Day 9.")
+    raise NotImplementedError("TODO: Implement this method.")
 
 
 def generate_report(metrics_per_principle: list, output_path: str) -> None:
@@ -57,4 +57,4 @@ def generate_report(metrics_per_principle: list, output_path: str) -> None:
         metrics_per_principle: List of dicts from compute_metrics().
         output_path:           Path to save metrics.json.
     """
-    raise NotImplementedError("Implement on Day 9.")
+    raise NotImplementedError("TODO: Implement this method.")
