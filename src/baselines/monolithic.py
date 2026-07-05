@@ -50,7 +50,7 @@ class MonolithicBaseline:
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.bfloat16
+            bnb_4bit_compute_dtype=torch.float16
         )
         
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -96,13 +96,12 @@ class MonolithicBaseline:
         return ds
 
     def train(self, train_df, val_df, output_dir: str = "checkpoints/monolithic") -> None:
-        from trl import SFTTrainer
-        from transformers import TrainingArguments
+        from trl import SFTConfig, SFTTrainer
         
         train_ds = self._prepare_data(train_df)
         val_ds = self._prepare_data(val_df)
         
-        training_args = TrainingArguments(
+        training_args = SFTConfig(
             output_dir=output_dir,
             learning_rate=2e-4,
             per_device_train_batch_size=4,
@@ -112,15 +111,14 @@ class MonolithicBaseline:
             eval_steps=100,
             save_strategy="steps",
             save_steps=100,
-            report_to="none"
+            report_to="none",
+            dataset_text_field="text"
         )
         
         self.trainer = SFTTrainer(
             model=self.model,
             train_dataset=train_ds,
             eval_dataset=val_ds,
-            dataset_text_field="text",
-            max_seq_length=512,
             args=training_args,
         )
         
