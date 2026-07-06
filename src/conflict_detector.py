@@ -20,6 +20,10 @@ Usage:
     conflicts = detector.detect(score_vector)
 """
 
+import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 TAU_LOW = 0.3
 TAU_HIGH = 0.7
 
@@ -34,7 +38,15 @@ class ConflictDetector:
     """
 
     def __init__(self, candidate_pairs=None):
-        raise NotImplementedError("TODO: Implement this method.")
+        if candidate_pairs is None:
+            # The classic tension points in LLM alignment
+            self.candidate_pairs = [
+                ("harmlessness", "helpfulness"),
+                ("honesty", "helpfulness"),
+                ("harmlessness", "truthfulness"),
+            ]
+        else:
+            self.candidate_pairs = candidate_pairs
 
     def compute_correlation_matrix(self, scores_df) -> None:
         """
@@ -44,7 +56,26 @@ class ConflictDetector:
         Args:
             scores_df: DataFrame with columns = principle names, rows = samples.
         """
-        raise NotImplementedError("TODO: Implement this method.")
+        corr = scores_df.corr(method="pearson")
+        
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(
+            corr, 
+            annot=True, 
+            cmap="coolwarm", 
+            vmin=-1, 
+            vmax=1, 
+            center=0,
+            square=True, 
+            linewidths=.5
+        )
+        plt.title("Pearson Correlation Between Principle Scores")
+        
+        os.makedirs("results/figures", exist_ok=True)
+        plt.savefig("results/figures/correlation_matrix.png", dpi=300, bbox_inches="tight")
+        plt.close()
+        
+        print("Correlation matrix saved to results/figures/correlation_matrix.png")
 
     def detect(self, score_vector: dict) -> list:
         """
@@ -58,4 +89,20 @@ class ConflictDetector:
         Returns:
             List of conflicting (pi, pj) tuples. Empty list if no conflict.
         """
-        raise NotImplementedError("TODO: Implement this method.")
+        detected_conflicts = []
+        
+        for pi, pj in self.candidate_pairs:
+            if pi not in score_vector or pj not in score_vector:
+                continue
+                
+            si = score_vector[pi]
+            sj = score_vector[pj]
+            
+            # Condition 1: pi is low (violates), pj is high (satisfies)
+            if si < TAU_LOW and sj > TAU_HIGH:
+                detected_conflicts.append((pi, pj))
+            # Condition 2: pj is low (violates), pi is high (satisfies)
+            elif sj < TAU_LOW and si > TAU_HIGH:
+                detected_conflicts.append((pi, pj))
+                
+        return detected_conflicts
