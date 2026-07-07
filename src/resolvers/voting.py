@@ -13,6 +13,9 @@ Usage:
     label = resolver.resolve(score_vector)
 """
 
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+
 
 class VotingResolver:
     """
@@ -24,17 +27,49 @@ class VotingResolver:
     """
 
     def __init__(self, weights: dict = None):
-        raise NotImplementedError("TODO: Implement this method.")
+        if weights is None:
+            self.weights = {
+                "harmlessness": 0.2,
+                "honesty": 0.2,
+                "helpfulness": 0.2,
+                "respectfulness": 0.2,
+                "truthfulness": 0.2
+            }
+        else:
+            self.weights = weights
 
     def fit(self, score_vectors: list, labels: list) -> None:
         """
-        Learn optimal weights on validation conflict examples.
+        Learn optimal weights on validation conflict examples using Logistic Regression.
 
         Args:
             score_vectors: List of score dicts from conflict-flagged examples.
             labels:        True binary labels for those examples.
         """
-        raise NotImplementedError("TODO: Implement this method.")
+        # Ensure we have a consistent ordering of principles
+        principles = list(self.weights.keys())
+        
+        X = []
+        for vec in score_vectors:
+            row = [vec.get(p, 0.5) for p in principles]
+            X.append(row)
+            
+        X = np.array(X)
+        y = np.array(labels)
+        
+        # Fit a simple logistic regression without bias to find the optimal linear weights
+        clf = LogisticRegression(fit_intercept=False, penalty=None)
+        clf.fit(X, y)
+        
+        # Normalize coefficients to sum to 1 to act as true "weights"
+        raw_weights = np.maximum(clf.coef_[0], 0) # Clip negative weights to 0
+        if np.sum(raw_weights) > 0:
+            norm_weights = raw_weights / np.sum(raw_weights)
+        else:
+            norm_weights = np.ones(len(principles)) / len(principles)
+            
+        self.weights = {p: w for p, w in zip(principles, norm_weights)}
+        print(f"Learned optimal voting weights: {self.weights}")
 
     def resolve(self, score_vector: dict) -> int:
         """
@@ -44,4 +79,5 @@ class VotingResolver:
         Returns:
             Final binary safety label: 0 (unsafe) or 1 (safe).
         """
-        raise NotImplementedError("TODO: Implement this method.")
+        weighted_sum = sum(score_vector.get(p, 0.5) * w for p, w in self.weights.items())
+        return 1 if weighted_sum >= 0.5 else 0
