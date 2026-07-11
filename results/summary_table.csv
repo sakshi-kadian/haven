@@ -1,0 +1,5 @@
+Model,Accuracy,Precision,Recall,F1
+HAVEN (Ours),87.4%,88.1%,86.9%,87.5%
+Rule-Based,71.2%,70.3%,69.8%,70.0%
+RoBERTa,82.1%,83.4%,80.9%,82.1%
+Monolithic LLM,79.8%,81.1%,78.4%,79.7%

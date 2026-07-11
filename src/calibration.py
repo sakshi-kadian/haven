@@ -133,7 +133,7 @@ def plot_reliability_diagram(confidences: list, labels: list,
     plt.plot([0, 1], [0, 1], linestyle='--', color='gray', label='Perfectly Calibrated')
     
     # Plot model reliability
-    plt.plot(bin_centers, accuracies, marker='o', linewidth=2, color='blue', label='Model')
+    plt.plot(bin_centers, accuracies, marker='o', linewidth=2, color='mediumpurple', label='Model')
     
     plt.xlim(0, 1)
     plt.ylim(0, 1)

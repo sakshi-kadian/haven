@@ -62,7 +62,7 @@ class ConflictDetector:
         sns.heatmap(
             corr, 
             annot=True, 
-            cmap="coolwarm", 
+            cmap="Purples", 
             vmin=-1, 
             vmax=1, 
             center=0,
