@@ -20,6 +20,9 @@ import json
 import os
 import sys
 
+# Bypass incompatible torchao version check on Kaggle
+sys.modules['torchao'] = None
+
 import pandas as pd
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
