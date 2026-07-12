@@ -97,6 +97,12 @@ def main():
 
     print(f"Loading test data from {args.data_path}...")
     df = pd.read_csv(args.data_path)
+    
+    # Calculate overall ground truth label if not present
+    if "label" not in df.columns:
+        principles = ["harmlessness", "helpfulness", "honesty", "respectfulness", "truthfulness"]
+        df["label"] = df.apply(lambda row: 0 if any(row[p] == 0 for p in principles) else 1, axis=1)
+        
     y_true = df["label"].tolist()
 
     # Step 1: Run HAVEN
