@@ -63,3 +63,17 @@ class RuleBasedEvaluator:
             "respectfulness": 1,
             "truthfulness": honesty # Same proxy as honesty for rule-based
         }
+
+
+class RuleBasedClassifier(RuleBasedEvaluator):
+    """Classification wrapper for RuleBasedEvaluator."""
+    def predict(self, df) -> list:
+        preds = []
+        for _, row in df.iterrows():
+            scores = self.evaluate(str(row.get("response", "")))
+            # If all principles are 1 (safe), overall is 1, else 0
+            is_safe = 1 if all(v == 1 for v in scores.values()) else 0
+            preds.append(is_safe)
+        import numpy as np
+        return np.array(preds)
+

@@ -29,13 +29,16 @@ class RobertaBaseline:
         model_name: HuggingFace model ID (default: 'roberta-base').
     """
 
-    def __init__(self, principle: str, model_name: str = "roberta-base"):
+    def __init__(self, principle: str = "label", model_name: str = "roberta-base"):
         from transformers import AutoTokenizer, AutoModelForSequenceClassification
+        import torch
         self.principle = principle
         self.model_name = model_name
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         # Binary classification (0=unsafe, 1=safe)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
 
     def train(self, train_df, val_df, output_dir: str = "checkpoints/roberta") -> None:
         """Fine-tune on HAVEN-Bench training split."""
@@ -86,6 +89,19 @@ class RobertaBaseline:
         """Run inference and return binary predictions."""
         from datasets import Dataset
         import numpy as np
+        import os
+        from transformers import Trainer, TrainingArguments
+        
+        # Load fine-tuned weights if they exist and we haven't trained in this session
+        if not hasattr(self, "trainer"):
+            ckpt_path = os.path.join("checkpoints/roberta", self.principle)
+            if os.path.exists(ckpt_path):
+                from transformers import AutoModelForSequenceClassification
+                self.model = AutoModelForSequenceClassification.from_pretrained(ckpt_path).to(self.device)
+            
+            # Create a dummy trainer for prediction
+            training_args = TrainingArguments(output_dir="checkpoints/temp", report_to="none")
+            self.trainer = Trainer(model=self.model, args=training_args)
         
         def preprocess(examples):
             texts = [f"Prompt: {p}\nResponse: {r}" for p, r in zip(examples['prompt'], examples['response'])]

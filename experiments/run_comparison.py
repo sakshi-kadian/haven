@@ -72,8 +72,23 @@ def run_rule_based(df: pd.DataFrame) -> list:
 
 def run_roberta(df: pd.DataFrame) -> list:
     """Run the RoBERTa baseline."""
-    clf = RobertaBaseline()
-    return clf.predict(df).tolist()
+    import os
+    roberta_checkpoint = "checkpoints/roberta/label"
+    if not os.path.exists(roberta_checkpoint):
+        print("  RoBERTa baseline checkpoint not found. Fine-tuning it now (takes ~2 mins on GPU)...")
+        train_path = "data/haven_bench_train.csv"
+        val_path = "data/haven_bench_val.csv"
+        if os.path.exists(train_path) and os.path.exists(val_path):
+            train_df = pd.read_csv(train_path)
+            val_df = pd.read_csv(val_path)
+            clf = RobertaBaseline(principle="label")
+            clf.train(train_df, val_df)
+        else:
+            print("  Warning: Train/Val files not found. Using untrained RoBERTa.")
+            clf = RobertaBaseline(principle="label")
+    else:
+        clf = RobertaBaseline(principle="label")
+    return clf.predict(df)
 
 
 def main():
