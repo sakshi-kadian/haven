@@ -20,6 +20,7 @@ Usage (on Kaggle):
 
 import argparse
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 import pandas as pd
 import torch
@@ -79,7 +80,7 @@ def train(principle: str, output_dir: str) -> None:
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=get_quantization_config(),
-        device_map={"": 0},
+        device_map="auto",
     )
     model = get_peft_model(model, get_qlora_config())
     model.print_trainable_parameters()
