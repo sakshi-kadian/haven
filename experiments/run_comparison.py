@@ -84,6 +84,13 @@ def run_roberta(df: pd.DataFrame) -> list:
         if os.path.exists(train_path) and os.path.exists(val_path):
             train_df = pd.read_csv(train_path)
             val_df = pd.read_csv(val_path)
+            
+            # Calculate overall safety label on-the-fly for train and val splits
+            for target_df in [train_df, val_df]:
+                if "label" not in target_df.columns:
+                    principles = ["harmlessness", "helpfulness", "honesty", "respectfulness", "truthfulness"]
+                    target_df["label"] = target_df.apply(lambda row: 0 if any(row[p] == 0 for p in principles) else 1, axis=1)
+            
             clf = RobertaBaseline(principle="label")
             clf.train(train_df, val_df)
         else:
