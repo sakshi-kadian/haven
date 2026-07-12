@@ -35,13 +35,12 @@ class ZeroShotLLMBaseline:
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
         
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         # Load in 4-bit for memory efficiency on Kaggle T4
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name, 
             device_map="auto",
-            torch_dtype=torch.bfloat16,
-            trust_remote_code=True
+            torch_dtype=torch.bfloat16
         )
 
     def evaluate(self, df, principle: str) -> list:

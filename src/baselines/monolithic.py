@@ -42,7 +42,7 @@ class MonolithicBaseline:
         from peft import LoraConfig, get_peft_model
         
         self.model_name = model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
             
@@ -56,8 +56,7 @@ class MonolithicBaseline:
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             quantization_config=bnb_config,
-            device_map="auto",
-            trust_remote_code=True
+            device_map="auto"
         )
         
         peft_config = LoraConfig(

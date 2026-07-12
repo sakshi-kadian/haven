@@ -72,7 +72,7 @@ def train(principle: str, output_dir: str) -> None:
     model_name = "microsoft/Phi-3-mini-4k-instruct"
     principle_data = PRINCIPLES[principle]
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -80,7 +80,6 @@ def train(principle: str, output_dir: str) -> None:
         model_name,
         quantization_config=get_quantization_config(),
         device_map="auto",
-        trust_remote_code=True,
     )
     model = get_peft_model(model, get_qlora_config())
     model.print_trainable_parameters()
