@@ -4,7 +4,7 @@ run_comparison.py
 Master experiment runner for the HAVEN framework.
 
 Orchestrates the full evaluation pipeline on Kaggle:
-    1. Load test dataset from data/test.csv
+    1. Load test dataset from data/haven_bench_test.csv
     2. Run all 4 classifiers (rule-based, RoBERTa, monolithic, HAVEN)
     3. Compute per-principle and overall metrics
     4. Run McNemar significance tests vs. each baseline
@@ -12,7 +12,7 @@ Orchestrates the full evaluation pipeline on Kaggle:
     6. Save all results to results/
 
 Usage (on Kaggle T4 GPU):
-    python experiments/run_comparison.py --checkpoint_dir checkpoints/ --data_path data/test.csv
+    python experiments/run_comparison.py --checkpoint_dir checkpoints/ --data_path data/haven_bench_test.csv
 """
 
 import argparse
@@ -40,7 +40,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="HAVEN vs. Baseline Comparison")
     parser.add_argument("--checkpoint_dir", type=str, default="checkpoints/",
                         help="Directory with trained principle adapter checkpoints.")
-    parser.add_argument("--data_path", type=str, default="data/test.csv",
+    parser.add_argument("--data_path", type=str, default="data/haven_bench_test.csv",
                         help="Path to the test CSV file.")
     parser.add_argument("--resolver", type=str, default="gating",
                         choices=["hierarchy", "voting", "gating"],
