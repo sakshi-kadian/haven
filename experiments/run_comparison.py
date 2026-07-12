@@ -78,7 +78,7 @@ def run_roberta(df: pd.DataFrame) -> list:
     import os
     roberta_checkpoint = "checkpoints/roberta/label"
     if not os.path.exists(roberta_checkpoint):
-        print("  RoBERTa baseline checkpoint not found. Fine-tuning it now (takes ~2 mins on GPU)...")
+        print("  RoBERTa baseline checkpoint not found. Fine-tuning it now...")
         train_path = "data/haven_bench_train.csv"
         val_path = "data/haven_bench_val.csv"
         if os.path.exists(train_path) and os.path.exists(val_path):
