@@ -12,7 +12,7 @@ Config:
     - LoRA rank: r=16, alpha=32, dropout=0.05
     - Learning rate: 2e-4
     - Epochs: 3
-    - Batch size: 4 (gradient accumulation steps=4 for effective batch=16)
+    - Batch size: 2 per device (gradient accumulation steps=8 for effective batch=16)
 
 Usage (on Kaggle):
     python src/trainer.py --principle harmlessness --output_dir checkpoints/phi3_harmlessness
