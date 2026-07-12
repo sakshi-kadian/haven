@@ -79,7 +79,7 @@ def train(principle: str, output_dir: str) -> None:
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=get_quantization_config(),
-        device_map="auto",
+        device_map={"": 0},
     )
     model = get_peft_model(model, get_qlora_config())
     model.print_trainable_parameters()

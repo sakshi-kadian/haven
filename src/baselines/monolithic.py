@@ -56,7 +56,7 @@ class MonolithicBaseline:
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             quantization_config=bnb_config,
-            device_map="auto"
+            device_map={"": 0}
         )
         
         peft_config = LoraConfig(
