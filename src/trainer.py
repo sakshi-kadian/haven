@@ -83,6 +83,7 @@ def train(principle: str, output_dir: str) -> None:
         device_map="auto",
     )
     model = get_peft_model(model, get_qlora_config())
+    model.enable_input_require_grads()
     model.print_trainable_parameters()
 
     train_df = pd.read_csv("data/haven_bench_train.csv")
