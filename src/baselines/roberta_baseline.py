@@ -54,11 +54,13 @@ class RobertaBaseline:
             return self.tokenizer(texts, truncation=True, padding="max_length", max_length=256)
             
         train_ds = Dataset.from_pandas(train_df[['prompt', 'response', self.principle]])
-        train_ds = train_ds.rename_column(self.principle, "label")
+        if self.principle != "label":
+            train_ds = train_ds.rename_column(self.principle, "label")
         train_ds = train_ds.map(preprocess, batched=True)
         
         val_ds = Dataset.from_pandas(val_df[['prompt', 'response', self.principle]])
-        val_ds = val_ds.rename_column(self.principle, "label")
+        if self.principle != "label":
+            val_ds = val_ds.rename_column(self.principle, "label")
         val_ds = val_ds.map(preprocess, batched=True)
         
         # Set up training arguments
