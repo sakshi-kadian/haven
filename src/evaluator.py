@@ -45,15 +45,34 @@ class HavenEvaluator:
         # Load per-principle tokenizers and classifier heads
         self.tokenizers = {}
         self.models = {}
+
+        if self.device.type == "cuda":
+            from transformers import BitsAndBytesConfig
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16
+            )
+            quant_args = {
+                "quantization_config": bnb_config,
+                "device_map": {"": self.device}
+            }
+        else:
+            quant_args = {}
+
         for principle in PRINCIPLE_NAMES:
             ckpt_path = os.path.join(checkpoint_dir, f"phi3_{principle}")
             if os.path.exists(ckpt_path):
                 self.tokenizers[principle] = AutoTokenizer.from_pretrained(ckpt_path)
-                self.models[principle] = (
-                    AutoModelForSequenceClassification.from_pretrained(ckpt_path, num_labels=2)
-                    .to(self.device)
-                    .eval()
+                model = AutoModelForSequenceClassification.from_pretrained(
+                    ckpt_path,
+                    num_labels=2,
+                    **quant_args
                 )
+                if self.device.type != "cuda":
+                    model = model.to(self.device)
+                self.models[principle] = model.eval()
 
         # Conflict detector using canonical pairs from constitution
         self.conflict_detector = ConflictDetector()
