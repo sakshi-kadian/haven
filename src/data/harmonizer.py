@@ -222,12 +222,11 @@ def build_haven_bench(output_dir: str) -> None:
     import os
     from sklearn.model_selection import train_test_split
     
-    # HuggingFace datasets library >3.0 blocks custom python scripts (like bbq.py).
-    # Since we are just testing the pipeline locally on the Vivobook, we will generate
-    # a synthetic dataset here. The real Kaggle run will downgrade the datasets library
-    # to load the real data.
-    
     print("Generating synthetic data for local pipeline testing...")
+    
+    # HuggingFace datasets library >3.0 blocks custom python scripts (like bbq.py).
+    # To fix this, we will bypass HF and load the raw JSONL directly from NYU's GitHub
+    # in the real kaggle script, but here we just mock it anyway.
     
     records = []
     import random
