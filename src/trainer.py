@@ -111,13 +111,15 @@ def train(principle: str, output_dir: str) -> None:
     training_args = SFTConfig(
         output_dir=output_dir,
         learning_rate=2e-4,
-        per_device_train_batch_size=4,
-        gradient_accumulation_steps=4,
+        per_device_train_batch_size=2,
+        per_device_eval_batch_size=2,
+        gradient_accumulation_steps=8,
         num_train_epochs=3,
         eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
         fp16=True,
+        gradient_checkpointing=True,
         report_to="none",
         dataset_text_field="text",
     )

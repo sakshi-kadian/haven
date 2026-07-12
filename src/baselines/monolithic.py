@@ -106,13 +106,16 @@ class MonolithicBaseline:
         training_args = SFTConfig(
             output_dir=output_dir,
             learning_rate=2e-4,
-            per_device_train_batch_size=4,
-            gradient_accumulation_steps=4,
+            per_device_train_batch_size=2,
+            per_device_eval_batch_size=2,
+            gradient_accumulation_steps=8,
             max_steps=500,
             eval_strategy="steps",
             eval_steps=100,
             save_strategy="steps",
             save_steps=100,
+            fp16=True,
+            gradient_checkpointing=True,
             report_to="none",
             dataset_text_field="text"
         )
