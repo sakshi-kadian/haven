@@ -15,7 +15,7 @@ Usage:
 
 import os
 import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from src.constitution import PRINCIPLES, PRINCIPLE_NAMES, PROMPT_TEMPLATE
 from src.conflict_detector import ConflictDetector
 
@@ -61,18 +61,26 @@ class HavenEvaluator:
         else:
             quant_args = {}
 
+        self.tokenizer = AutoTokenizer.from_pretrained("microsoft/Phi-3-mini-4k-instruct")
+        # Find token IDs for '0' and '1'
+        self.token_0 = self.tokenizer("0", add_special_tokens=False).input_ids[0]
+        self.token_1 = self.tokenizer("1", add_special_tokens=False).input_ids[0]
+
+        self.base_model = None
+
         for principle in PRINCIPLE_NAMES:
             ckpt_path = os.path.join(checkpoint_dir, f"phi3_{principle}")
             if os.path.exists(ckpt_path):
-                self.tokenizers[principle] = AutoTokenizer.from_pretrained(ckpt_path)
-                model = AutoModelForSequenceClassification.from_pretrained(
-                    ckpt_path,
-                    num_labels=2,
-                    **quant_args
-                )
-                if self.device.type != "cuda":
-                    model = model.to(self.device)
-                self.models[principle] = model.eval()
+                if self.base_model is None:
+                    # Load base model only once to save massive amounts of VRAM!
+                    self.base_model = AutoModelForCausalLM.from_pretrained(
+                        "microsoft/Phi-3-mini-4k-instruct",
+                        **quant_args
+                    )
+                # Attach this principle's LoRA adapter
+                self.base_model.load_adapter(ckpt_path, adapter_name=principle)
+                self.models[principle] = True
+                self.tokenizers[principle] = self.tokenizer
 
         # Conflict detector using canonical pairs from constitution
         self.conflict_detector = ConflictDetector()
@@ -107,34 +115,48 @@ class HavenEvaluator:
                 continue
 
             # Build the constitutional prompt using the shared template
-            input_text = PROMPT_TEMPLATE.format(
+            prompt_text = PROMPT_TEMPLATE.format(
                 principle_name=info["name"],
                 principle_description=info["description"],
                 prompt=prompt,
                 response=response,
             )
+            
+            # Format using Phi-3's chat template, EXACTLY like training!
+            messages = [{"role": "user", "content": prompt_text}]
+            input_text = self.tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
 
-            tokenizer = self.tokenizers[principle]
-            model = self.models[principle]
-
-            inputs = tokenizer(
+            inputs = self.tokenizer(
                 input_text,
                 return_tensors="pt",
                 truncation=True,
                 max_length=512,
             ).to(self.device)
 
+            # Activate the specific LoRA adapter for this principle
+            self.base_model.set_adapter(principle)
+
             with torch.no_grad():
-                outputs = model(**inputs)
-                logits = outputs.logits
+                outputs = self.base_model(**inputs)
+                # Get logits for the very last token
+                next_token_logits = outputs.logits[0, -1, :]
+
+            # Extract the logits specifically for the tokens '0' and '1'
+            logit_0 = next_token_logits[self.token_0]
+            logit_1 = next_token_logits[self.token_1]
+            
+            # Combine into a tensor for softmax calibration
+            binary_logits = torch.stack([logit_0, logit_1])
 
             # Apply temperature calibration before softmax
             T = self.temperature.get(principle, 1.0)
-            calibrated_logits = logits / T
+            calibrated_logits = binary_logits / T
             probs = torch.softmax(calibrated_logits, dim=-1)
 
             # Score = probability of class 1 (satisfies principle)
-            scores[principle] = probs[0, 1].item()
+            scores[principle] = probs[1].item()
 
         return scores
 
