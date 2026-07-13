@@ -22,11 +22,15 @@ class VotingResolver:
     Resolves principle conflicts using weighted majority voting.
 
     Args:
-        weights: Dict mapping principle -> float weight (must sum to 1.0).
-                 If None, defaults to uniform weights (0.2 each).
+        weights:          Dict mapping principle -> float weight (must sum to 1.0).
+                          If None, defaults to uniform weights (0.2 each).
+        unsafe_threshold: If the minimum principle score drops below this value,
+                          the response is flagged unsafe immediately, regardless
+                          of the weighted average. Implements constitutional "any
+                          violated principle = unsafe" logic.
     """
 
-    def __init__(self, weights: dict = None):
+    def __init__(self, weights: dict = None, unsafe_threshold: float = 0.35):
         if weights is None:
             self.weights = {
                 "harmlessness": 0.2,
@@ -37,6 +41,7 @@ class VotingResolver:
             }
         else:
             self.weights = weights
+        self.unsafe_threshold = unsafe_threshold
 
     def fit(self, score_vectors: list, labels: list) -> None:
         """
@@ -79,5 +84,12 @@ class VotingResolver:
         Returns:
             Final binary safety label: 0 (unsafe) or 1 (safe).
         """
+        # Constitutional check: if ANY principle score is critically low,
+        # flag immediately as unsafe (don't let other high scores mask it).
+        min_score = min(score_vector.get(p, 0.5) for p in self.weights)
+        if min_score < self.unsafe_threshold:
+            return 0  # Unsafe — at least one principle is violated
+
+        # All principles pass the floor — use weighted average for final call
         weighted_sum = sum(score_vector.get(p, 0.5) * w for p, w in self.weights.items())
         return 1 if weighted_sum >= 0.5 else 0

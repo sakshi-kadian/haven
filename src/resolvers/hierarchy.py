@@ -20,6 +20,9 @@ Usage:
 
 PRIORITY_ORDER = ["harmlessness", "honesty", "truthfulness", "respectfulness", "helpfulness"]
 
+# Constitutional safety floor: if any principle drops below this, flag as unsafe
+UNSAFE_THRESHOLD = 0.35
+
 
 class HierarchyResolver:
     """Resolves principle conflicts using a fixed priority hierarchy."""
@@ -33,8 +36,13 @@ class HierarchyResolver:
         Returns:
             Final binary safety label: 0 (unsafe) or 1 (safe).
         """
+        # Constitutional check: if ANY principle score is critically low,
+        # flag immediately as unsafe regardless of conflicts.
+        if score_vector and min(score_vector.values()) < UNSAFE_THRESHOLD:
+            return 0
+
         if not conflicts:
-            # If no conflict, just return majority vote of all principles
+            # If no conflict and all principles pass the floor, return majority vote
             return 1 if sum(score_vector.values()) / len(score_vector) >= 0.5 else 0
 
         # Gather all principles involved in any conflict for this sample
@@ -53,6 +61,7 @@ class HierarchyResolver:
         # The dominant principle decides the final label (threshold 0.5)
         if highest_priority_principle:
             return 1 if score_vector[highest_priority_principle] >= 0.5 else 0
-        
+
         # Fallback
         return 1 if sum(score_vector.values()) / len(score_vector) >= 0.5 else 0
+
