@@ -86,6 +86,7 @@ class RobertaBaseline:
         )
         
         self.trainer.train()
+        self.trainer.save_model(out_path)  # Save the final model directly to out_path
 
     def predict(self, df) -> list:
         """Run inference and return binary predictions."""
@@ -93,13 +94,27 @@ class RobertaBaseline:
         import numpy as np
         import os
         from transformers import Trainer, TrainingArguments
+        from transformers.trainer_utils import get_last_checkpoint
         
         # Load fine-tuned weights if they exist and we haven't trained in this session
         if not hasattr(self, "trainer"):
             ckpt_path = os.path.join("checkpoints/roberta", self.principle)
             if os.path.exists(ckpt_path):
                 from transformers import AutoModelForSequenceClassification
-                self.model = AutoModelForSequenceClassification.from_pretrained(ckpt_path).to(self.device)
+                
+                # Determine where to load from: root or a checkpoint-XXX subdirectory
+                last_checkpoint = get_last_checkpoint(ckpt_path)
+                load_path = ckpt_path
+                
+                if not os.path.exists(os.path.join(ckpt_path, "config.json")):
+                    if last_checkpoint is not None:
+                        load_path = last_checkpoint
+                    else:
+                        checkpoints = [os.path.join(ckpt_path, d) for d in os.listdir(ckpt_path) if d.startswith("checkpoint-")]
+                        if checkpoints:
+                            load_path = sorted(checkpoints, key=lambda x: int(x.split("-")[-1]))[-1]
+                
+                self.model = AutoModelForSequenceClassification.from_pretrained(load_path).to(self.device)
             
             # Create a dummy trainer for prediction
             training_args = TrainingArguments(output_dir="checkpoints/temp", report_to="none")
@@ -115,3 +130,4 @@ class RobertaBaseline:
         predictions = self.trainer.predict(test_ds)
         preds = np.argmax(predictions.predictions, axis=-1)
         return preds.tolist()
+
