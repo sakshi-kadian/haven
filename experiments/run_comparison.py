@@ -120,6 +120,9 @@ def main():
     haven_reports = run_haven(df, args.checkpoint_dir, args.resolver)
     haven_preds = [r["resolved_label"] for r in haven_reports]
 
+    # Save per-principle scores to dataframe for the figures notebook
+    for principle in PRINCIPLE_NAMES:
+        df[f"{principle}_confidence"] = [r["scores"].get(principle, 0.5) for r in haven_reports]
     # Step 2: Run baselines
     print("[2/4] Running rule-based baseline...")
     rule_preds = run_rule_based(df)
