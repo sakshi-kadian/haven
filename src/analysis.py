@@ -138,24 +138,27 @@ def extract_case_studies(predictions_path: str, n: int = 10) -> list:
     case_studies = []
 
     for principle in PRINCIPLE_NAMES:
-        pred_col = f"{principle}_pred"
+        pred_col = principle
         conf_col = f"{principle}_confidence"
 
         if pred_col not in df.columns:
             continue
 
-        errors = df[df["true_label"] != df[pred_col]].copy()
+        errors = df[df["label"] != df[pred_col]].copy()
 
         # Sort by highest confidence wrong predictions (most interesting failures)
         if conf_col in errors.columns:
             errors = errors.sort_values(by=conf_col, ascending=False)
 
         for _, row in errors.head(n).iterrows():
+            prompt_val = row.get("prompt", "")
+            resp_val = row.get("response", "")
+            
             case_studies.append({
                 "principle": principle,
-                "prompt": row.get("prompt", ""),
-                "response": row.get("response", ""),
-                "true_label": int(row.get("true_label", -1)),
+                "prompt": "" if pd.isna(prompt_val) else str(prompt_val),
+                "response": "" if pd.isna(resp_val) else str(resp_val),
+                "true_label": int(row.get("label", -1)),
                 "pred_label": int(row.get(pred_col, -1)),
                 "confidence": float(row.get(conf_col, 0.5)),
             })
