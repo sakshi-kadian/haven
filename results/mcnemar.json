@@ -1,0 +1,16 @@
+{
+  "haven_vs_rule_based": {
+    "statistic": 106.5057,
+    "p_value": 0.0,
+    "significant": true,
+    "b": 48,
+    "c": 217
+  },
+  "haven_vs_roberta": {
+    "statistic": 332.0179,
+    "p_value": 0.0,
+    "significant": true,
+    "b": 99,
+    "c": 572
+  }
+}
